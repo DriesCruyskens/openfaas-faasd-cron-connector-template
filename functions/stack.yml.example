@@ -1,0 +1,68 @@
+# This file contains fictional functions to demonstrate useful options.
+# https://docs.openfaas.com/reference/yaml/
+version: 1.0
+provider:
+  name: openfaas
+  
+  # Env variable substitution: ${<variable_name>:-<default_value>}
+  gateway: ${OPENFAAS_URL:-http://localhost:8080}
+
+# Configuration used by the entire stack
+configuration:
+
+  # Prevents the need to pull templates manually before building templates
+  templates:
+    - name: golang-http
+      source: https://github.com/openfaas/golang-http-template
+
+  # Copy additional folders into the functions' handler folders
+  copy:
+    - ./common
+    - ./data
+    - ./models
+
+functions:
+  hello-go:
+    lang: golang-http
+    handler: ./hello-go
+
+    # a remote image repository is necessary to deploy
+    # to a single remote host or a cluster
+    image: <dockerhub-username>/hello-go:latest
+
+    # /tmp folder is still writeable
+    readonly_root_filesystem: true
+
+    environment:
+      combine_output: false
+
+    environment_file:
+      - env.yml
+
+    # Secrets need to be configured in the CLI before use
+    secrets:
+      - google-application-credentials
+
+    # Run only on linux nodes (Kubernetes)
+    constraints:
+      - "node.platform.os == linux"
+
+    # Install additional packages. These get expanded in a template's Dockerfile
+    build_args:
+      ADDITIONAL_PACKAGES: imagemagick jpegoptim zlib
+
+    # Labels can be anything you want
+    labels:
+      canary: true
+      Git-Owner: alexellis
+
+    # Memory limits
+    requests:
+      memory: 20Mi
+    limits:
+      memory: 40Mi
+
+    # Schedule you functions using cron (cron-connector has to be installed)
+    annotations:
+      topic: cron-function
+      schedule: "*/1 * * * *"

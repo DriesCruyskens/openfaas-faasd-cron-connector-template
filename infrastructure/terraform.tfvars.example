@@ -1,0 +1,16 @@
+# Required
+name                    = "faasd"
+project                 = ""
+region                  = "europe-west1"
+zone                    = "europe-west1-b"
+google_credentials_file = "google_credentials.json"
+ssh_rsa_pub             = ""
+
+# Optional
+#domain                  = ""
+#letsencrypt_email       = ""
+#basic_auth_user         = "admin"
+#network                 = "default"
+#subnetwork              = ""
+#machine_type            = "e2-medium"
+#tags                    = ["faasd"]

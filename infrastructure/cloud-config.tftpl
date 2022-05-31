@@ -1,0 +1,33 @@
+#cloud-config
+ssh_authorized_keys:
+## Note: Replace with your own public key
+  - ssh-rsa ${ssh_rsa_pub}
+
+package_update: true
+
+packages:
+ - runc
+ - git
+
+runcmd:
+# install gc ops agent
+- curl -sSO https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh
+- sudo bash add-google-cloud-ops-agent-repo.sh --also-install
+
+# install faasd basic auth user and password
+- mkdir -p /var/lib/faasd/secrets/
+- echo ${basic_auth_user} > /var/lib/faasd/secrets/basic-auth-user
+- echo ${basic_auth_password} > /var/lib/faasd/secrets/basic-auth-password
+
+# Forked the faasd install script to include cron-connector in the docker-compose.yml
+- curl -sfL https://raw.githubusercontent.com/DriesCruyskens/faasd/master/hack/install.sh | FAASD_DOMAIN=${domain} LETSENCRYPT_EMAIL=${letsencrypt_email} bash -s -
+- systemctl status -l containerd --no-pager
+- journalctl -u faasd-provider --no-pager
+- systemctl status -l faasd-provider --no-pager
+- systemctl status -l faasd --no-pager
+- sleep 60 && journalctl -u faasd --no-pager
+
+# install and log into openfaas-cli
+- curl -sSLf https://cli.openfaas.com | sh
+- sudo cat /var/lib/faasd/secrets/basic-auth-password | /usr/local/bin/faas-cli login --password-stdin
+- sleep 5 && journalctl -u faasd --no-pager

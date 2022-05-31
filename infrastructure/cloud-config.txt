@@ -1,0 +1,28 @@
+#cloud-config
+ssh_authorized_keys:
+## Note: Replace with your own public key
+  - ssh-rsa ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC1CQppI2csdYxxpDjFqsp3S/2EVX/XKZ4Pzc4wEKRvSZOJg2PoySWr6IHiKIMB0g/dBk7DEHB44/gMelPSd2mSiPDCTNukZUkcA7xgGX1RBNwnm+QnsdbqFpblISeqIJIxGO9kBFmwpA1LLy67RvbOgsHOT4Jppn85Jg677uWHB4Gjt7/5hQDrkgdxel5jkewx4a0Z4ibktWPiD4s1JPQvhnHaxr9CICx7JYE5VVoZAw4/ACbOtle4YbtMNkdAWywY7EPMUd3kUlYD/MfhyxyuBpTgreAdwgZoDILpYZvqTfiB3QXZyukQiks94sl4RamPknPWe9S7+g0nSbkmx7HyhJLiHGJIWtl8KJASCg5cY4m9e2h3MDceyM5Ssanc8rgGbDvEeVR1IBnEIUgtuL9Pp/WswTFnHHAH0qDvgREKar+h8pgOl6tMCmvsaPODLhjpCddCxNvEPV2QZoLwqNtgMg4nNsO8ACkMGpGmjGbPtSK1I78L5KC63N0zwoHc/oE= driescruyskens@Driess-MBP.lan
+
+package_update: true
+
+packages:
+ - runc
+ - git
+
+runcmd:
+# install gc ops agent
+- curl -sSO https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh
+- sudo bash add-google-cloud-ops-agent-repo.sh --also-install
+
+# Forked the faasd install script to include cron-connector in the docker-compose.yml
+- curl -sfL https://raw.githubusercontent.com/DriesCruyskens/faasd/master/hack/install.sh | bash -s -
+- systemctl status -l containerd --no-pager
+- journalctl -u faasd-provider --no-pager
+- systemctl status -l faasd-provider --no-pager
+- systemctl status -l faasd --no-pager
+- sleep 60 && journalctl -u faasd --no-pager
+
+# install and log into openfaas-cli
+- curl -sSLf https://cli.openfaas.com | sh
+- sudo cat /var/lib/faasd/secrets/basic-auth-password | /usr/local/bin/faas-cli login --password-stdin
+- sleep 5 && journalctl -u faasd --no-pager
