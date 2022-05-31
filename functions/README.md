@@ -79,14 +79,14 @@ faas-cli new --lang golang-http hello-go --append=stack.yml
 
 `faas-cli build`, `faas-cli push` and `faas-cli deploy` can be combined in a single command: `faas-cli up`.
 
-There is a third command: `faas-cli publis` which combines `faas-cli build` and `faas-cli push` and enables multi-arch containers using Dockerbuildx.
+There is a third command: `faas-cli publish` that combines `faas-cli build` and `faas-cli push` and enables multi-arch containers using Docker buildx.
 
-When deploying function to anything different than your local machine, we shouldn’t use `faas up` because this does not take into account the differences in architecture between local and remote machine. I had the problem using an m1 Mac: `faas-cli up` wouldn’t work because I was building the images in arm64 and GC Compute Instances are amd64.
+When deploying function to anything different than your local machine, we shouldn’t use `faas up` because this does not take into account the differences in architecture between local and remote machine. I had the problem using an m1 Mac: `faas-cli up` wouldn’t work because I was building the images on arm64 and GC Compute Instances are amd64/x86-64.
 - <https://docs.openfaas.com/cli/templates/>
 - <https://github.com/openfaas/templates/issues/232>
 - <https://docs.openfaas.com/cli/build/>
 
-To cross compile you need to use the `publish` and `deploy` commands separately:
+So, to cross compile you need to use the `publish` and `deploy` commands separately:
 
 ```bash
 faas-cli publish —platforms linux/amd64 && faas deploy
