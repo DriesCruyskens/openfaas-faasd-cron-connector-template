@@ -1,7 +1,7 @@
 #cloud-config
 ssh_authorized_keys:
 ## Note: Replace with your own public key
-  - ssh-rsa ${ssh_rsa_pub}
+  - ${ssh_rsa_pub}
 
 package_update: true
 
