@@ -79,6 +79,10 @@ The official OpenFaaS documentation is very cryptic when it comes the the `cron-
 - Verify the cloud-config.txt file you passed to the VM
   - `locate user-data.txt`
   - `sudo less user-data.txt`
+- Check the logs of the faasd containers:
+  - `sudo ctr namespaces list`: faasd uses containerd under the hood. We first have to find containerd's namespaces with
+  - `sudo ctr --namespace openfaas containers list`: with the namespace you can query running containers under that namespace.
+  - `sudo journalctl -u containerd | grep cron-connector`, you can't fetch logs using `ctr`, you have to grep containerd's logs
 
 ## References
 

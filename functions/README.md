@@ -16,11 +16,10 @@ The installation of OpenFaaS cli tool can be found [here](https://docs.openfaas.
 
 To the OpenFaaS gateway username is `admin` by default and the password is found in the file located at `/var/lib/faasd/secrets/basic-auth-password` on the server where faasd is running.
 
-If you can ssh into the server using assymetric keys, you can execute this on your local machine:
+If you can ssh into the server using authorized_keys, you can execute this on your local machine:
 
 ```bash
-$ ssh ubuntu@<remote machine> "sudo cat /var/lib/faasd/secrets/basic-auth-password" > basic-auth-password
-$ echo basic-auth-password | faas login -s
+$ ssh ubuntu@<remote machine> "sudo cat /var/lib/faasd/secrets/basic-auth-password" | faas login -s
 ```
 
 This assumes you have the `$OPENFAAS_URL` environment variable set to the gateway of your faasd server. If not you can use the `faas login`'s `-g` flag for example:
@@ -92,9 +91,29 @@ So, to cross compile you need to use the `publish` and `deploy` commands separat
 faas-cli publish —platforms linux/amd64 && faas deploy
 ```
 
+### Logging in functions
+
+#### classic-watchdog
+Because classic-watchdog uses Stdin to pass the HTTP request and Stdout/Stderr to read the HTTP response you can do either:
+
+- Enable `write_debug` to also write Stdout and Stderr to the logs, or
+- Disable `combine_output` and write logs to `stderr`.
+
+#### of-watchdog
+
+You can either write to Stdout or Stderr to log.
+
 ### Scheduled functions (cron)
 
 Scheduled functions only work if you have cron-connector installed. This is done automatically if you deployed the faasd server using this repo. If not you need to manually add cron-connector to faasd's `docker-compose.yml` file and restart faasd. Explained [here](https://libraries.io/go/github.com%2Fopenfaas-incubator%2Fcron-connector).
+
+### Testing functions before deploying
+
+[Official answer](https://docs.openfaas.com/deployment/troubleshooting/#i-want-to-test-my-function-without-deploying-it)
+
+My recommendations: 
+    - Write unit tests 
+    - Deploy to local multipass VM
 
 ## Function timeouts
 
@@ -102,6 +121,13 @@ https://github.com/openfaas/faasd/issues/69
 
 
 https://github.com/DriesCruyskens/faasd/blob/master/docker-compose.yaml
+
+
+https://docs.openfaas.com/tutorials/expanded-timeouts/
+
+## Scaling to zero
+
+Part of OpenFaaS Pro :(
 
 ## Troubleshooting
 
@@ -113,3 +139,9 @@ https://github.com/DriesCruyskens/faasd/blob/master/docker-compose.yaml
   - `faas-cli logs <function-name>`
 - Check function status:
   - `faas-cli describe <function-name>`
+- Official troubleshooting guide:
+  - <https://docs.openfaas.com/deployment/troubleshooting/>
+
+## Handy links
+
+- <https://github.com/openfaas/workshop>

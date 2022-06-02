@@ -3,7 +3,7 @@
 version: 1.0
 provider:
   name: openfaas
-  
+
   # Env variable substitution: ${<variable_name>:-<default_value>}
   gateway: ${OPENFAAS_URL:-http://localhost:8080}
 
@@ -33,8 +33,13 @@ functions:
     # /tmp folder is still writeable
     readonly_root_filesystem: true
 
+    # environment variables, can be custom or some are used by openfaas
     environment:
+      # send stderr to logs intead of combining it with stdout
+      # https://github.com/openfaas/workshop/blob/master/lab4.md#making-use-of-logging
       combine_output: false
+      # https://github.com/openfaas/workshop/blob/master/lab3.md#troubleshooting-verbose-output-with-write_debug
+      write_debug: true
 
     environment_file:
       - env.yml
