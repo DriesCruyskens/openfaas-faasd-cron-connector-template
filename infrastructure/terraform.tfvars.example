@@ -3,6 +3,7 @@ name                    = "faasd"
 project                 = ""
 region                  = "europe-west1"
 zone                    = "europe-west1-b"
+# alternatively, set GOOGLE_CREDENTIALS env var in Terraform Cloud
 google_credentials_file = "google_credentials.json"
 ssh_rsa_pub             = ""
 

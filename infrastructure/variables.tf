@@ -20,6 +20,7 @@ variable "zone" {
 variable "google_credentials_file" {
   description = "The google credentials file used to authenticate with the Google Cloud project"
   type        = string
+  default     = null
 }
 
 variable "ssh_rsa_pub" {

@@ -9,7 +9,8 @@
 } */
 
 provider "google" {
-  credentials = file("${var.google_credentials_file}")
+  # If google_credentials_file is not passed, assume GOOGLE_CREDENTIALS env var is set in Terraform Cloud
+  credentials = var.google_credentials_file == null ? ("${var.google_credentials_file}") : null
 }
 
 resource "random_password" "faasd" {
