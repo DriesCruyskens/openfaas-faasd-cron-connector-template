@@ -28,6 +28,31 @@ This assumes you have the `$OPENFAAS_URL` environment variable set to the gatewa
 $ echo basic-auth-password | faas login -s -g https://<IP>:8080
 ```
 
+### 3. Configure an image registry
+
+>tldr; If you're using public images and Docker Hub, just log into Docker Desktop and use your Docker Hub username as the image prefix.
+>
+> If you want to use private images, read on.
+
+OpenFaaS uploads the functions' images to an image registry when deploying. If the images can be public I recommend using either Docker Hub or Github Container Registry. There are a lot of other image registries out there like Google Cloud Image Registry.
+
+#### Public images
+
+When using public images, you just have to make sure that the `image` fields in `stack.yml` have the right prefixes. By default a functions name would be `hello-go:latest` which would store the image in the local Docker Desktop image registry. In order for OpenFaaS to know where to upload the images we need to prefix it: `<Docker Hub username>/hello-go:latest` or `ghcr.io/<username>/hello-go:latest`. Of course, OpenFaaS needs to be able to authenticate with your chosen image registry. It does this using the `~/.docker/config.json` file on your local machine. If you are logged into Docker Desktop you should already find a `https://index.docker.io/v1/` entry here.
+
+If you are using any other image registry than Docker Hub you need to add an entry to this file using the `docker login` command. [More info](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-the-container-registry).
+
+#### Private images
+
+The same applies here as with public images but because the images also need to be pulled on the faasd server, faasd needs to be able to authenticate with our private image registry. This is done using the `/var/lib/faasd/.docker/config.json` file on the faasd server. If your `~/.docker/config.json` file contains the auth string, you can copy this over to the server. On MacOS and Windows though, chances are the auth string is saved in keychain/credential manager. If this is the case you can generate the Docker config file using
+
+```bash
+faas-cli registry-login --server <server> --username <username> --password-stdin
+```
+
+For example `faas registry-login --server ghcr.io -u <username> --password-stdin`. If you are using ghcr, the password will be a Personal Access Token. (see the more info link under public images)
+
+
 ## Usage
 
 ### Log into the GUI
@@ -67,8 +92,10 @@ faas-cli new --list
 #### 4. Create a new function
 
 ```bash
-faas-cli new --lang golang-http hello-go --append=stack.yml
+faas-cli new --lang golang-http hello-go --append=stack.yml --prefix <prefix>
 ```
+
+The prefix gets prepended to the function's image. If you're using Docker Hub it is your username. If you're using ghcr.io it's `ghcr.io/<username>` etc. For example, the image field in `stack.yml` would then become `ghcr.io/<username>/hello-go:latest` instead of `hello-go:latest` 
 
 > I recommend using only a single `stack.yml` file and appending all new function to it, instead of a separate `<function-name>.yml` file for each function.
 
@@ -124,6 +151,8 @@ https://github.com/DriesCruyskens/faasd/blob/master/docker-compose.yaml
 
 
 https://docs.openfaas.com/tutorials/expanded-timeouts/
+
+https://github.com/openfaas/workshop/blob/master/lab8.md
 
 ## Scaling to zero
 
