@@ -144,15 +144,51 @@ My recommendations:
 
 ## Function timeouts
 
-https://github.com/openfaas/faasd/issues/69
+After installing faasd, function timeouts are set to 60s. To increase the timeout duration, you have to change it in 3 places. Whichever place has the lowest timeout configured, will be the effective timeout.
 
+### 1. stack.yml (function timeouts)
 
-https://github.com/DriesCruyskens/faasd/blob/master/docker-compose.yaml
+```yaml
+environment:
+  write_timeout: 3m30s
+  read_timeout: 3m
+  exec_timeout: 3m
+```
 
+<https://github.com/openfaas/workshop/blob/master/lab8.md#extend-timeouts-with-read_timeout>
 
-https://docs.openfaas.com/tutorials/expanded-timeouts/
+### 2. docker-compose.yml (faasd timeouts)
 
-https://github.com/openfaas/workshop/blob/master/lab8.md
+The gateway service in `/var/lib/faasd/docker-compose.yml` has 3 timeouts you have to increase. Make sure to restart faasd using `sudo systemctl restart faasd`
+
+```
+gateway:
+  image: ghcr.io/openfaas/gateway:0.21.4
+  environment:
+  ...
+    - read_timeout=60s
+    - write_timeout=60s
+    - upstream_timeout=65s
+  ...
+```
+
+### 3. faasd-provider.service (faasd-provider gateway timeout)
+
+You have to create a new file called `/etc/systemd/system/faasd-provider.service.d/override.conf` that increases the `faasd-provider` systemd service's timeout and restart the `faasd-provider` service.
+
+```bash
+mkdir /etc/systemd/system/faasd-provider.service.d
+touch /etc/systemd/system/faasd-provider.service.d/override.conf
+printf "[Service]\nEnvironment=\"service_timeout=5m\"\n" > /etc/systemd/system/faasd-provider.service.d/override.conf
+systemctl restart faasd-provider
+```
+
+- <https://github.com/openfaas/faasd/issues/69#issuecomment-816856958>
+
+### Timeout References
+
+- <https://docs.openfaas.com/tutorials/expanded-timeouts/>
+- <https://github.com/alexellis/go-long>
 
 ## Scaling to zero
 
