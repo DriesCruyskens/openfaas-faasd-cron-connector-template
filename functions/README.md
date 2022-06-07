@@ -118,23 +118,23 @@ So, to cross compile you need to use the `publish` and `deploy` commands separat
 faas-cli publish —platforms linux/amd64 && faas deploy
 ```
 
-### Logging in functions
+## Logging in functions
 
-#### classic-watchdog
+### classic-watchdog
 Because classic-watchdog uses Stdin to pass the HTTP request and Stdout/Stderr to read the HTTP response you can do either:
 
 - Enable `write_debug` to also write Stdout and Stderr to the logs, or
 - Disable `combine_output` and write logs to `stderr`.
 
-#### of-watchdog
+### of-watchdog
 
 You can either write to Stdout or Stderr to log.
 
-### Scheduled functions (cron)
+## Scheduled functions (cron)
 
 Scheduled functions only work if you have cron-connector installed. This is done automatically if you deployed the faasd server using this repo. If not you need to manually add cron-connector to faasd's `docker-compose.yml` file and restart faasd. Explained [here](https://libraries.io/go/github.com%2Fopenfaas-incubator%2Fcron-connector).
 
-### Testing functions before deploying
+## Testing functions before deploying
 
 [Official answer](https://docs.openfaas.com/deployment/troubleshooting/#i-want-to-test-my-function-without-deploying-it)
 
